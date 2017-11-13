@@ -1,8 +1,8 @@
-package pritykovskaya;
+package tFNiYaFF;
 
 
-import java.io.IOException;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -23,6 +23,32 @@ import org.apache.hadoop.util.ToolRunner;
 
 public class WordCount extends Configured implements Tool {
 
+  private static Map<Text, IntWritable> sortByValues(Map<Text,IntWritable> inputMap){
+    Map<Text, IntWritable> sortedMap = new LinkedHashMap<>();
+    ArrayList<Text> keys = new ArrayList<>();
+    ArrayList<IntWritable> values = new ArrayList<>();
+    for(Map.Entry<Text,IntWritable> pair: inputMap.entrySet()){
+      keys.add(pair.getKey());
+      values.add(pair.getValue());
+    }
+    for(int i=0; i<keys.size();i++){
+      for(int j=0; j<keys.size()-1;j++){
+        if(values.get(j).compareTo(values.get(j+1))==-1){
+          IntWritable temp = values.get(j);
+          values.set(j,values.get(j+1));
+          values.set(j+1,temp);
+          Text text = keys.get(j);
+          keys.set(j,keys.get(j+1));
+          keys.set(j+1,text);
+        }
+      }
+    }
+    for (int i=0; i<values.size();i++){
+      sortedMap.put(keys.get(i),values.get(i));
+    }
+    return sortedMap;
+  }
+
   public static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
     private static final IntWritable ONE = new IntWritable(1);
     private final transient Text word = new Text();
@@ -41,6 +67,8 @@ public class WordCount extends Configured implements Tool {
 
   public static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
+    private Map<Text,IntWritable> countMap = new HashMap<>();
+
     @Override
     public void reduce(final Text key, final Iterable<IntWritable> values, final Context context)
       throws IOException, InterruptedException {
@@ -48,7 +76,33 @@ public class WordCount extends Configured implements Tool {
       for (final IntWritable val : values) {
         sum += val.get();
       }
-      context.write(key, new IntWritable(sum));
+      countMap.put(new Text(key),new IntWritable(sum));
+    }
+
+    @Override
+    protected void cleanup(Context context) throws IOException, InterruptedException {
+      File file = new File("stop_words_en.txt");
+      InputStreamReader isr = new InputStreamReader(new FileInputStream(file));
+      BufferedReader br = new BufferedReader(isr);
+      ArrayList<String> stopWords = new ArrayList<>();
+      String line;
+      while ((line = br.readLine()) != null) {
+        stopWords.add(line);
+      }
+      Map<Text, IntWritable> sortedMap = sortByValues(countMap);
+      int counter = 0;
+      int stopWordsCounter = 0;
+      int sum = 0;
+      for (Text key: sortedMap.keySet()) {
+        if(stopWords.contains(key.toString())){
+          stopWordsCounter+=sortedMap.get(key).get();
+        }
+        sum+= sortedMap.get(key).get();
+        if(++counter==7) {
+          context.write(key, sortedMap.get(key));
+        }
+      }
+      context.write(new Text( "stop% "), new IntWritable(stopWordsCounter/sum));
     }
   }
 
