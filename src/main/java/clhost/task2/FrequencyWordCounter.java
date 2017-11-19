@@ -36,24 +36,20 @@ public class FrequencyWordCounter extends Configured implements Tool {
 
     public static class FrequencyReducer extends Reducer<IntWritable, Text, Text, IntWritable> {
         private final IntWritable count = new IntWritable();
+        private static final int SEEK_POSITION = 7;
         private int counter = 0;
 
         @Override
         protected void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             System.out.println("#reduce");
             count.set(Integer.parseInt(key.toString()) * (-1));
+
             for (Text value : values) {
-                context.write(value, count);
-            }
-            counter++;
-
-
-            /*if (counter == 7) {
-                for (Text value : values) {
+                if (counter == SEEK_POSITION - 1) {
                     context.write(value, count);
                 }
+                counter++;
             }
-            counter++;*/
         }
     }
 
