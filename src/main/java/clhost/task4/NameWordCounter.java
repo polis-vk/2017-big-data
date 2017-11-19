@@ -9,33 +9,33 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NameWordCounter extends Configured implements Tool {
 
     public static class NameWordMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
-        private static final IntWritable ONE = new IntWritable(1);
-        private final transient Text word = new Text();
+        private final static IntWritable ONE = new IntWritable(1);
+        private final Text word = new Text();
 
         @Override
-        public void map(final LongWritable key, final Text value, final Context context) throws IOException, InterruptedException {
-            System.out.println("#map");
-            final String line = value.toString();
-            final StringTokenizer tokenizer = new StringTokenizer(line);
+        protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+            StringTokenizer tokenizer = new StringTokenizer(value.toString());
 
             while (tokenizer.hasMoreTokens()) {
-                String w = tokenizer.nextToken();
-                if (w.matches("[A-Z].+")) {
-                    word.set(w);
+                String token = tokenizer.nextToken();
+                if (token.matches("[A-Z].+")) {
+                    word.set(token);
                     context.write(word, ONE);
+                } else {
+                    context.getCounter("count", token.toLowerCase()).increment(1);
                 }
             }
         }
@@ -43,14 +43,14 @@ public class NameWordCounter extends Configured implements Tool {
 
 
     public static class NameWordReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
-
         @Override
         public void reduce(final Text key, final Iterable<IntWritable> values, final Context context) throws IOException, InterruptedException {
-            System.out.println("#reduce");
             int sum = 0;
-            for (final IntWritable val : values) {
-                sum += val.get();
+            for (IntWritable value : values) {
+                sum += value.get();
             }
+
+            sum += Math.round(context.getCounter("count", key.toString().toLowerCase()).getValue() / (sum * 0.005));
             context.write(key, new IntWritable(sum));
         }
     }
@@ -71,8 +71,8 @@ public class NameWordCounter extends Configured implements Tool {
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path("/home/clhost/proj/2017-big-data/namewordcountoutput"));
+        TextInputFormat.addInputPath(job, new Path(args[0]));
+        TextOutputFormat.setOutputPath(job, new Path("/home/clhost/proj/2017-big-data/namewordcountoutput"));
 
         return job.waitForCompletion(true) ? 0 : 1;
     }
