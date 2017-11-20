@@ -1,4 +1,4 @@
-package pritykovskaya;
+package mburmistrov;
 
 
 import java.io.IOException;
