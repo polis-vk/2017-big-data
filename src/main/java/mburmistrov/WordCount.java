@@ -27,13 +27,18 @@ public class WordCount extends Configured implements Tool {
     private static final IntWritable ONE = new IntWritable(1);
     private final transient Text word = new Text();
 
-    @Override public void map(final LongWritable key, final Text value, final Context context)
-      throws IOException, InterruptedException {
+    @Override public void map(final LongWritable key, final Text value, final Context context) throws IOException, InterruptedException {
       final String line = value.toString();
-      final StringTokenizer tokenizer = new StringTokenizer(line);
+      final StringTokenizer tokenizer = new StringTokenizer(line, " \t\n\r.,:;-[]()_?!'\"");
+
+      String cToken;
+
       while (tokenizer.hasMoreTokens()) {
-        word.set(tokenizer.nextToken());
-        context.write(word, ONE);
+        cToken = tokenizer.nextToken();
+        if ((cToken.charAt(0) >= 'a' && cToken.charAt(0) <= 'z') || (cToken.charAt(0) >= 'A' && cToken.charAt(0) <= 'Z')) {
+          word.set(cToken);
+          context.write(word, ONE);
+        }
       }
     }
   }
