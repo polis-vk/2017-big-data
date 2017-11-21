@@ -3,6 +3,7 @@ package mburmistrov;
 import mburmistrov.task1.WordCount;
 import mburmistrov.task2.WordCertainPosition;
 import mburmistrov.task2.WordSort;
+import mburmistrov.task3.StopWordProportion;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.conf.Configuration;
 
@@ -21,11 +22,16 @@ public class TaskRunner {
       new String[]{"output/1", "output/2"}
     );
 
-
     ToolRunner.run(
       new Configuration(),
       new WordCertainPosition(),
       new String[]{"output/2", "output/3", "6"}
+    );
+
+    ToolRunner.run(
+            new Configuration(),
+            new StopWordProportion(),
+            new String[]{"output/1", "output/4", "resources/stop_words_en.txt"}
     );
 
   }

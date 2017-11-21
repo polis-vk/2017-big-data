@@ -24,7 +24,7 @@ public class WordCertainPosition extends Configured implements Tool {
 
     private static IntWritable ONE = new IntWritable(1);
 
-    static class MyMapper extends Mapper<Object, Text, IntWritable, TextWCount>{
+    static class WordCertainPositionMapper extends Mapper<Object, Text, IntWritable, TextWCount>{
         private int count;
 
         @Override
@@ -39,17 +39,19 @@ public class WordCertainPosition extends Configured implements Tool {
 
             int pos = line.indexOf(0x09);
 
-            int inputCount = Integer.valueOf(line.substring(0, pos));
-            String inputString = line.substring(pos+1);
+            if (pos >= 0) {
+                int inputCount = Integer.valueOf(line.substring(0, pos));
+                String inputString = line.substring(pos + 1);
 
-            if (count <= vNum){
-                context.write(ONE, new TextWCount(inputString, inputCount));
-                count++;
+                if (count <= vNum){
+                    context.write(ONE, new TextWCount(inputString, inputCount));
+                    count++;
+                }
             }
         }
     }
 
-    static class MyReducer extends Reducer<IntWritable, TextWCount, Text, IntWritable>{
+    static class WordCertainPositionReducer extends Reducer<IntWritable, TextWCount, Text, IntWritable>{
         private SortedSet<TextWCount> setOfTextWithCount;
 
         @Override
@@ -91,8 +93,8 @@ public class WordCertainPosition extends Configured implements Tool {
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
-        job.setMapperClass(MyMapper.class);
-        job.setReducerClass(MyReducer.class);
+        job.setMapperClass(WordCertainPositionMapper.class);
+        job.setReducerClass(WordCertainPositionReducer.class);
 
         job.setMapOutputKeyClass(IntWritable.class);
         job.setMapOutputValueClass(TextWCount.class);
@@ -108,6 +110,7 @@ public class WordCertainPosition extends Configured implements Tool {
 
     public static void main(String[] args) throws Exception{
         final int returnCode = ToolRunner.run(new Configuration(), new WordCertainPosition(), args);
+
         System.exit(returnCode);
     }
 }
