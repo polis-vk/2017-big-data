@@ -9,11 +9,11 @@ import java.io.IOException;
 
 public class WordSortMapper extends Mapper<LongWritable, Text, IntWritable, Text> {
 
-    @Override
-    protected void map(final LongWritable key, final Text value, final Context context) throws IOException, InterruptedException {
-        final String line = value.toString();
-        final String[] splitLine = line.split("\t");
+  @Override
+  protected void map(final LongWritable key, final Text value, final Context context) throws IOException, InterruptedException {
+    final String line = value.toString();
+    final String[] splitLine = line.split("\t");
 
-        context.write(new IntWritable(Integer.valueOf(splitLine[1])), new Text(splitLine[0]));
-    }
+    context.write(new IntWritable(Integer.valueOf(splitLine[1])), new Text(splitLine[0]));
+  }
 }

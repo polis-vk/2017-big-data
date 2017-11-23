@@ -20,97 +20,97 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 public class WordCertainPosition extends Configured implements Tool {
-    private static int vNum;
+  private static int vNum;
 
-    private static IntWritable ONE = new IntWritable(1);
+  private static IntWritable ONE = new IntWritable(1);
 
-    static class WordCertainPositionMapper extends Mapper<Object, Text, IntWritable, TextWCount>{
-        private int count;
+  static class WordCertainPositionMapper extends Mapper<Object, Text, IntWritable, TextWCount> {
+    private int count;
 
-        @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
-            count = 0;
-        }
-
-        @Override
-        protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            final String line = value.toString();
-
-            int pos = line.indexOf(0x09);
-
-            if (pos >= 0) {
-                int inputCount = Integer.valueOf(line.substring(0, pos));
-                String inputString = line.substring(pos + 1);
-
-                if (count <= vNum){
-                    context.write(ONE, new TextWCount(inputString, inputCount));
-                    count++;
-                }
-            }
-        }
-    }
-
-    static class WordCertainPositionReducer extends Reducer<IntWritable, TextWCount, Text, IntWritable>{
-        private SortedSet<TextWCount> setOfTextWithCount;
-
-        @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
-            setOfTextWithCount = new TreeSet<>();
-        }
-
-        @Override
-        protected void reduce(IntWritable key, Iterable<TextWCount> values, Context context) throws IOException, InterruptedException {
-            values.forEach((textWCount -> setOfTextWithCount.add(textWCount.clone())));
-        }
-
-        @Override
-        protected void cleanup(Context context) throws IOException, InterruptedException {
-            super.cleanup(context);
-
-            int i = 0;
-
-            for (TextWCount textWCount : setOfTextWithCount){
-                if (i == vNum){
-                    context.write(new Text(textWCount.getText()), new IntWritable(textWCount.getCount()));
-                    break;
-                }
-                i++;
-            }
-        }
+    @Override
+    protected void setup(Context context) throws IOException, InterruptedException {
+      super.setup(context);
+      count = 0;
     }
 
     @Override
-    public int run(String[] args) throws Exception {
-        final Configuration conf = this.getConf();
-        final Job job = new Job(conf, "WordCertainPosition");
+    protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+      final String line = value.toString();
 
-        vNum = Integer.valueOf(args[2]);
+      int pos = line.indexOf(0x09);
 
-        job.setJarByClass(WordCertainPosition.class);
+      if (pos >= 0) {
+        int inputCount = Integer.valueOf(line.substring(0, pos));
+        String inputString = line.substring(pos + 1);
 
-        job.setInputFormatClass(TextInputFormat.class);
-        job.setOutputFormatClass(TextOutputFormat.class);
+        if (count <= vNum) {
+          context.write(ONE, new TextWCount(inputString, inputCount));
+          count++;
+        }
+      }
+    }
+  }
 
-        job.setMapperClass(WordCertainPositionMapper.class);
-        job.setReducerClass(WordCertainPositionReducer.class);
+  static class WordCertainPositionReducer extends Reducer<IntWritable, TextWCount, Text, IntWritable> {
+    private SortedSet<TextWCount> setOfTextWithCount;
 
-        job.setMapOutputKeyClass(IntWritable.class);
-        job.setMapOutputValueClass(TextWCount.class);
-
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
-
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-
-        return job.waitForCompletion(true) ? 0 : 1;
+    @Override
+    protected void setup(Context context) throws IOException, InterruptedException {
+      super.setup(context);
+      setOfTextWithCount = new TreeSet<>();
     }
 
-    public static void main(String[] args) throws Exception{
-        final int returnCode = ToolRunner.run(new Configuration(), new WordCertainPosition(), args);
-
-        System.exit(returnCode);
+    @Override
+    protected void reduce(IntWritable key, Iterable<TextWCount> values, Context context) throws IOException, InterruptedException {
+      values.forEach((textWCount -> setOfTextWithCount.add(textWCount.clone())));
     }
+
+    @Override
+    protected void cleanup(Context context) throws IOException, InterruptedException {
+      super.cleanup(context);
+
+      int i = 0;
+
+      for (TextWCount textWCount : setOfTextWithCount) {
+        if (i == vNum) {
+          context.write(new Text(textWCount.getText()), new IntWritable(textWCount.getCount()));
+          break;
+        }
+        i++;
+      }
+    }
+  }
+
+  @Override
+  public int run(String[] args) throws Exception {
+    final Configuration conf = this.getConf();
+    final Job job = new Job(conf, "WordCertainPosition");
+
+    vNum = Integer.valueOf(args[2]);
+
+    job.setJarByClass(WordCertainPosition.class);
+
+    job.setInputFormatClass(TextInputFormat.class);
+    job.setOutputFormatClass(TextOutputFormat.class);
+
+    job.setMapperClass(WordCertainPositionMapper.class);
+    job.setReducerClass(WordCertainPositionReducer.class);
+
+    job.setMapOutputKeyClass(IntWritable.class);
+    job.setMapOutputValueClass(TextWCount.class);
+
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
+
+    FileInputFormat.addInputPath(job, new Path(args[0]));
+    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+    return job.waitForCompletion(true) ? 0 : 1;
+  }
+
+  public static void main(String[] args) throws Exception {
+    final int returnCode = ToolRunner.run(new Configuration(), new WordCertainPosition(), args);
+
+    System.exit(returnCode);
+  }
 }

@@ -30,7 +30,8 @@ public class WordSort extends Configured implements Tool {
     }
   }
 
-  @Override public int run(final String[] args) throws Exception {
+  @Override
+  public int run(final String[] args) throws Exception {
     final Configuration conf = this.getConf();
     final Job job = Job.getInstance(conf, "Word Sort");
     job.setJarByClass(WordSort.class);
