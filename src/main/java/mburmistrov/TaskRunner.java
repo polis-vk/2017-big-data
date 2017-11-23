@@ -11,46 +11,50 @@ import org.apache.hadoop.conf.Configuration;
 public class TaskRunner {
   public static void main(String[] args) throws Exception{
 
+    // task 1
     ToolRunner.run(
       new Configuration(),
       new WordCount(),
-      new String[]{"input", "output/1"}
+      new String[]{"input", "output/1_wordCount"}
     );
 
+    // task 2
     ToolRunner.run(
       new Configuration(),
       new WordSort(),
-      new String[]{"output/1", "output/2"}
+      new String[]{"output/1_wordCount", "output/2_wordSort"}
     );
 
     ToolRunner.run(
       new Configuration(),
       new WordCertainPosition(),
-      new String[]{"output/2", "output/3", "6"}
+      new String[]{"output/2_wordSort", "output/2_seventhWord", "6"}
     );
 
+    // task 3
     ToolRunner.run(
       new Configuration(),
       new StopWordProportion(),
-      new String[]{"output/1", "output/4", "resources/stop_words_en.txt"}
+      new String[]{"output/1_wordCount", "output/3_stopWordProportion", "resources/stop_words_en.txt"}
     );
 
+    // task 4
     ToolRunner.run(
       new Configuration(),
       new NameWordProportion(),
-      new String[]{"output/1", "output/5"}
+      new String[]{"output/1_wordCount", "output/4_nameWordProportion"}
     );
 
     ToolRunner.run(
       new Configuration(),
       new WordSort(),
-      new String[]{"output/5", "output/6"}
+      new String[]{"output/4_nameWordProportion", "output/4_nameWordSort"}
     );
 
     ToolRunner.run(
       new Configuration(),
       new WordCertainPosition(),
-      new String[]{"output/6", "output/7", "4"}
+      new String[]{"output/4_nameWordSort", "output/4_nameFifth", "4"}
     );
 
   }
