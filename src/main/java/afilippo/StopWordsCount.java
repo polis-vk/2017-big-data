@@ -59,6 +59,20 @@ public class StopWordsCount extends Configured implements Tool {
         }
     }
 
+    static class MyCombiner extends Reducer<Text, IntWritable, Text, IntWritable>{
+
+        @Override
+        protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+            int valuesCount = 0;
+
+            for (final IntWritable value : values) {
+                valuesCount += value.get();
+            }
+
+            context.write(key, new IntWritable(valuesCount));
+        }
+    }
+
     static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable>{
 
         @Override
@@ -91,6 +105,7 @@ public class StopWordsCount extends Configured implements Tool {
 
         job.setMapperClass(MyMapper.class);
         job.setReducerClass(MyReducer.class);
+        job.setCombinerClass(MyCombiner.class);
 
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);

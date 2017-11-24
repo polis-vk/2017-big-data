@@ -59,7 +59,12 @@ public class NValue extends Configured implements Tool {
 
         @Override
         protected void reduce(IntWritable key, Iterable<TextWithCountWriteble> values, Context context) throws IOException, InterruptedException {
-            values.forEach((textWithCountWriteble -> setOfTextWithCount.add(textWithCountWriteble.clone())));
+            values.forEach((textWithCountWriteble -> {
+                setOfTextWithCount.add(textWithCountWriteble.clone());
+                if (setOfTextWithCount.size() > valueNumber + 1){
+                    setOfTextWithCount.remove(setOfTextWithCount.last());
+                }
+            }));
         }
 
         @Override
