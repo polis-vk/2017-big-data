@@ -1,5 +1,4 @@
-package pritykovskaya;
-
+package kubrin;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
@@ -20,7 +19,6 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-
 public class WordCount extends Configured implements Tool {
 
   public static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
@@ -28,38 +26,42 @@ public class WordCount extends Configured implements Tool {
     private final transient Text word = new Text();
 
     @Override public void map(final LongWritable key, final Text value, final Context context)
-      throws IOException, InterruptedException {
+            throws IOException, InterruptedException {
       final String line = value.toString();
-      final StringTokenizer tokenizer = new StringTokenizer(line);
+      final StringTokenizer tokenizer = new StringTokenizer(line, " \t\n\r.,:;-[]()_?!'\"");
+      String curToken;
       while (tokenizer.hasMoreTokens()) {
-        word.set(tokenizer.nextToken());
-        context.write(word, ONE);
+        curToken = tokenizer.nextToken();
+        if((curToken.charAt(0) >= 'a' && curToken.charAt(0) <= 'z') ||
+                (curToken.charAt(0) >= 'A' && curToken.charAt(0) <= 'Z')) {
+          word.set(curToken);
+          context.write(word, ONE);
+        }
       }
     }
   }
 
-
-  public static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+  static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable>{
 
     @Override
-    public void reduce(final Text key, final Iterable<IntWritable> values, final Context context)
-      throws IOException, InterruptedException {
+    protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
       int sum = 0;
-      for (final IntWritable val : values) {
+      for (final IntWritable val : values){
         sum += val.get();
       }
       context.write(key, new IntWritable(sum));
     }
   }
 
-
-  @Override public int run(final String[] args) throws Exception {
+  @Override
+  public int run(String[] args) throws Exception {
     final Configuration conf = this.getConf();
-    final Job job = Job.getInstance(conf, "Word Count");
+    final Job job = new Job(conf, "Word Count");
     job.setJarByClass(WordCount.class);
 
     job.setMapperClass(MyMapper.class);
     job.setReducerClass(MyReducer.class);
+    //job.setCombinerClass(MyReducer.class);
 
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
@@ -73,7 +75,7 @@ public class WordCount extends Configured implements Tool {
     return job.waitForCompletion(true) ? 0 : 1;
   }
 
-  public static void main(final String[] args) throws Exception {
+  public static void main(String[] args) throws Exception{
     final int returnCode = ToolRunner.run(new Configuration(), new WordCount(), args);
     System.exit(returnCode);
   }
