@@ -21,7 +21,5 @@ From github.com:polis-mail-ru/2017-big-data
 Откройте в IDE -- [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/) 
 через File->Open, выбрав pom.xml
 
-Пример конфигурация для запуска таски из idea можно посмотреть в файле config.png
-
-В своём Java package `<username>` выполните все задания.
+Время работы job WordCount без combiner составило 47m 38.473s. С использованием combiner, после добавления combiner время работы составило 31m 38.491s.
 
