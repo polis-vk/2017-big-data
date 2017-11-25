@@ -1,3 +1,3 @@
-2. is	126420
-3. 41.602
-4. french	5742
+Stop words: 315 / 50111754
+Top 7 word: was	18390091
+Top 5 name: October	1072212
