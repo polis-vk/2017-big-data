@@ -20,6 +20,7 @@ public class WordCount extends Configured implements Tool {
 
         job.setMapperClass(WordCountMapper.class);
         job.setReducerClass(WordCountReducer.class);
+        job.setCombinerClass(WordCountReducer.class);
 
         TextOutputFormat.setOutputPath(job, new Path(strings[1]));
         job.setOutputFormatClass(TextOutputFormat.class);
