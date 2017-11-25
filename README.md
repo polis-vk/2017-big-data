@@ -24,4 +24,3 @@ From github.com:polis-mail-ru/2017-big-data
 Пример конфигурация для запуска таски из idea можно посмотреть в файле config.png
 
 В своём Java package `<username>` выполните все задания.
-
