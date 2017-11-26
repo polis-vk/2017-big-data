@@ -16,8 +16,6 @@ import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class NameWordCounter extends Configured implements Tool {
 
