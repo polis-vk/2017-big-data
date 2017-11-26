@@ -1,4 +1,4 @@
 .idea
 /input
 /output*
-/target
+*/target/**
