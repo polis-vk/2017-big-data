@@ -29,7 +29,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>tFNiYaFF.WordCount</mainClass>
+              <mainClass>tFNiYaFF.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
