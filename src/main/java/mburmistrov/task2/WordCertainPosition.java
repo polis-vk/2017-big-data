@@ -62,7 +62,12 @@ public class WordCertainPosition extends Configured implements Tool {
 
     @Override
     protected void reduce(IntWritable key, Iterable<TextWCount> values, Context context) throws IOException, InterruptedException {
-      values.forEach((textWCount -> setOfTextWithCount.add(textWCount.clone())));
+      values.forEach((textWCount -> {
+        setOfTextWithCount.add(textWCount.clone());
+        if (setOfTextWithCount.size() > vNum + 1){
+          setOfTextWithCount.remove(setOfTextWithCount.last());
+        }
+      }));
     }
 
     @Override
@@ -110,7 +115,6 @@ public class WordCertainPosition extends Configured implements Tool {
 
   public static void main(String[] args) throws Exception {
     final int returnCode = ToolRunner.run(new Configuration(), new WordCertainPosition(), args);
-
     System.exit(returnCode);
   }
 }

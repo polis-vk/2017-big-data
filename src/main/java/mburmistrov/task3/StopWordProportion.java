@@ -68,6 +68,17 @@ public class StopWordProportion extends Configured implements Tool {
     }
   }
 
+  static class StopWordProportionCombiner extends Reducer<Text, IntWritable, Text, IntWritable>{
+    @Override
+    protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+      int vCount = 0;
+      for (final IntWritable value : values) {
+        vCount += value.get();
+      }
+      context.write(key, new IntWritable(vCount));
+    }
+  }
+
 
   @Override
   public int run(String[] args) throws Exception {
@@ -86,6 +97,7 @@ public class StopWordProportion extends Configured implements Tool {
 
     job.setMapperClass(StopWordProportionMapper.class);
     job.setReducerClass(StopWordProportionReducer.class);
+    job.setCombinerClass(StopWordProportionCombiner.class);
 
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);

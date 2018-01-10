@@ -31,7 +31,7 @@ public class TaskRunner {
     TaskManager t2 = new TaskManager("task 2")
             .performTask("word sort", getTaskTime(new WordSort(),"output/1_wordCount", "output/2_wordSort"))
             .performTask("output seventh word", getTaskTime(new WordCertainPosition(),"output/2_wordSort", "output/2_seventhWord", "6"));
-    
+
     // task 3
     TaskManager t3 = new TaskManager("task 3").performTask("stop word proportion", getTaskTime(new StopWordProportion(),"output/1_wordCount", "output/3_stopWordProportion", "resources/stop_words_en.txt"));
 
