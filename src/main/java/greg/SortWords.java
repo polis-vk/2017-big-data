@@ -18,6 +18,8 @@ import java.io.IOException;
 
 public class SortWords extends Configured implements Tool {
 
+    private static int counter = 0;
+
     public static class MyMapper extends Mapper <LongWritable, Text, IntWritable, Text> {
 
         @Override
@@ -31,6 +33,12 @@ public class SortWords extends Configured implements Tool {
 
         @Override
         protected void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+            counter++;
+            if(7 == counter) {
+                System.out.println("\n\n\n\n\n\n\n\n\n\n\n" +
+                        values.iterator().next().toString() +
+                        "\t" + key.toString() + "\n\n\n\n\n\n\n\n\n\n");
+            }
             super.reduce(key, values, context);
         }
     }
