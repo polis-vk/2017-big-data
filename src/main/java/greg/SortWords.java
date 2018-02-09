@@ -54,7 +54,7 @@ public class SortWords extends Configured implements Tool {
     @Override
     public int run(String[] args) throws Exception {
         final Job job = new Job(new Configuration(), "sort words");
-        job.setJarByClass(WordCount.class);
+        job.setJarByClass(SortWords.class);
 
         job.setMapperClass(MyMapper.class);
         job.setReducerClass(MyReducer.class);
