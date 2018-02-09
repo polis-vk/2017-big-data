@@ -1,3 +1,9 @@
 .idea
 /input
 /output*
+2017-big-data.iml
+classes/
+src/main/java/META-INF/
+src/main/java/greg/META-INF/
+target/
+
